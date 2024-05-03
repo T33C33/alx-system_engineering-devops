@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Script to send SIGTERM signal to 7-highlander process
+
+PID=$(pgrep -f "7-highlander")
+if [ -n "$PID" ]; then
+    kill -SIGTERM "$PID"
+else
+    echo "No process named '7-highlander' is currently running."
+fi
