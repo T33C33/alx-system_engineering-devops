@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Manages the 'manage_my_process' process
+
+PID_FILE="/var/run/my_process.pid"
+MY_PROCESS="/path/to/manage_my_process"
+start_process() {
+    nohup "$MY_PROCESS" & # Start in background
+    echo $! > "$PID_FILE"
+    echo "manage_my_process started"
+}
+stop_process() {
+    if [ -f "$PID_FILE" ]; then
+        PID=$(cat "$PID_FILE")
+        kill "$PID"
+        rm -f "$PID_FILE"
+        echo "manage_my_process stopped"
+    else
+        echo "manage_my_process is not running"
+    fi
+}
+restart_process() {
+    stop_process
+    start_process
+    echo "manage_my_process restarted"
+}
+if [ "$#" -ne 1 ]; then
+    echo "Usage: manage_my_process {start|stop|restart}"
+    exit 1
+fi
+case "$1" in
+    start)
+        start_process
+        ;;
+    stop)
+        stop_process
+        ;;
+    restart)
+        restart_process
+        ;;
+    *)
+        echo "Usage: manage_my_process {start|stop|restart}"
+        exit 1
+        ;;
+esac
