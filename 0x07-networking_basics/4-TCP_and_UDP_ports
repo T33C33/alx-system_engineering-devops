@@ -1,3 +1,11 @@
-#!/usr/bin/env bash
-#Answers the question on Networking
-netstat -l --program
+#!/bin/bash
+
+# Display listening ports with PID and program name
+echo "Active Internet connections (only servers)"
+
+# Using ss to list listening ports istead of netstat
+ss -tuln -p
+
+# For UNIX domain sockets
+echo "Active UNIX domain sockets (only servers)"
+ss -xl -p
