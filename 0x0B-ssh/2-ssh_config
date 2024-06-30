@@ -1,0 +1,5 @@
+# ssh config file in /etc/ddh/sshd_config
+Host *
+      IdentifyFile ~/.ssh/school
+      PasswordAuthentication no
+      
