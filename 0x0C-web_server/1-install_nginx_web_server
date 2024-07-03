@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Bash script that configures a new Ubuntu machine to some requirements
+
+apt-get -y update
+
+apt-get -y install nginx
+
+ufw allow 'Nginx HTTP'
+
+custom_page="/var/www/html/index.html"
+echo "Hello World!" > "$custom_page"
+
+service nginx start
