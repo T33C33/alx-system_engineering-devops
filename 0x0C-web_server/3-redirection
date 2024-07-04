@@ -4,16 +4,10 @@ if ! which nginx > /dev/null; then
     sudo apt-get update
     sudo apt-get install -y nginx
 fi
-
-# Nginx configuration file location
 NGINX_CONFIG="/etc/nginx/sites-available/default"
-
-# Create a backup of the existing configuration file
 if [ ! -f "$NGINX_CONFIG.bak" ]; then
     sudo cp "$NGINX_CONFIG" "$NGINX_CONFIG.bak"
 fi
-
-# Define the redirection location
 REDIRECT_URL="https://www.youtube.com/watch?v=QH2-TGUlwu4"
 
 sudo sed -i '/location \/ {/a\\n\tlocation /redirect_me {\n\t\treturn 301 '"$REDIRECT_URL"';\n\t}' "$NGINX_CONFIG"
