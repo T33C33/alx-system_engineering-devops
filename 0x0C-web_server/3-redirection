@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # 301 redirection script
 
+# Update repositories and install Nginx
 apt-get update
 apt-get -y install nginx
 
@@ -8,18 +9,16 @@ apt-get -y install nginx
 sudo ufw allow 'Nginx HTTP'
 
 # Set up web directory and permissions; directory already exists
-# but will keep line for idempotency and script reusability for automation on another server
+# but keeping this line for idempotency and script reusability
 mkdir -p /var/www/html/
 sudo chmod -R 755 /var/www
 
 # Create a simple HTML file
 echo 'Hello World!' > /var/www/html/index.html
 
-# Define Nginx configuration with redirection
-# Backslash to mark continuity
-# default_server string on both IPV4 and IPV6 signify just one server
-CONFIGURE_SERVER=\
-"server {
+# Define Nginx configuration with redirection using a heredoc
+CONFIGURE_SERVER=$(cat <<EOF
+server {
     listen 80 default_server;
     listen [::]:80 default_server;
     root /var/www/html;
@@ -28,17 +27,20 @@ CONFIGURE_SERVER=\
     location / {
         try_files \$uri \$uri/ =404;
     }
-    sed -i '/location \/ {/a \\n    location /redirect_me {\n        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;\n    }\n'
-}"
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
+}
+EOF
+)
 
-# Apply the Nginx configuration
-# Where -c tells bash to read and execute the command that follows it as a string
-# -e enables interpretation of backslash escapes
-bash -c "echo -e '$CONFIGURE_SERVER' > /etc/nginx/sites-enabled/default"
+# Apply the Nginx configuration using sed to append the redirect configuration
+echo "$CONFIGURE_SERVER" | sudo tee /etc/nginx/sites-available/default >/dev/null
+sudo sed -i '/location \/ {/a \\n'"$CONFIGURE_SERVER" /etc/nginx/sites-available/default
 
 # Start or restart Nginx
-if [ "$(pgrep -c nginx)" -le 0 ]; then
-    service nginx start
+if ! pgrep -x "nginx" >/dev/null; then
+    sudo service nginx start
 else
-    service nginx restart
+    sudo service nginx restart
 fi
