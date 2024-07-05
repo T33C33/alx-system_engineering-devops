@@ -23,7 +23,7 @@ CONFIGURE_SERVER=\
     listen 80 default_server;
     listen [::]:80 default_server;
     root /var/www/html;
-    index index.html index.html index.nginx-debian.html;
+    index index.htm index.html index.nginx-debian.html;
     server_name _;
     location / {
         try_files \$uri \$uri/ =404;
