@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# 301 redirection script
+
+# Update repositories and install Nginx
+apt-get update
+apt-get -y install nginx
+
+# Allow HTTP traffic on port 80 through the firewall
+sudo ufw allow 'Nginx HTTP'
+
+# Set up web directory and permissions; directory already exists
+# but keeping this line for idempotency and script reusability
+mkdir -p /var/www/html/
+sudo chmod -R 755 /var/www
+
+# Create a simple HTML file (optional for index.html)
+echo 'Hello World!' > /var/www/html/index.html
+
+# Define Nginx configuration using a heredoc for clarity
+CONFIGURE_SERVER=$(cat <<EOF
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root /var/www/html;
+    index index.htm index.html index.nginx-debian.html;
+    server_name _;
+
+    # Main location block handling normal requests
+    location / {
+        try_files \$uri \$uri/ =404;
+    }
+
+    # Custom location block for 301 redirection
+    location /redirect_me {
+        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+    }
+
+    # Custom location block for 404 error page
+    error_page 404 /404.html;
+    location = /404.html {
+        internal;
+        root /var/www/html;
+        echo "Ceci n'est pas une page";
+    }
+}
+EOF
+)
+
+# Apply the Nginx configuration using sed to append the configuration
+echo "$CONFIGURE_SERVER" | sudo tee /etc/nginx/sites-available/default >/dev/null
+sudo sed -i '/location \/ {/a \\n'"$CONFIGURE_SERVER" /etc/nginx/sites-available/default
+
+# Start or restart Nginx
+if ! pgrep -x "nginx" >/dev/null; then
+    sudo service nginx start
+else
+    sudo service nginx restart
+fi
