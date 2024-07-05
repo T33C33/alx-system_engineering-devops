@@ -32,6 +32,8 @@ CONFIGURE_SERVER=\
 }"
 
 # Apply the Nginx configuration
+# Where -c tells bash to read and execute the command that follows it as a string
+# -e enables interpretation of backslash escapes
 bash -c "echo -e '$CONFIGURE_SERVER' > /etc/nginx/sites-enabled/default"
 
 # Start or restart Nginx
