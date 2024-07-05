@@ -44,3 +44,10 @@ if ! pgrep -x "nginx" >/dev/null; then
 else
     sudo service nginx restart
 fi
+
+REDIRECT_STATUS=$(curl -sI http://localhost/redirect_me | grep "HTTP/1.1 301 Moved Permanently")
+if [[ -n "$REDIRECT_STATUS" ]]; then
+    echo "Redirection test passed: $REDIRECT_STATUS"
+else
+    echo "Redirection test failed: $REDIRECT_STATUS"
+fi
