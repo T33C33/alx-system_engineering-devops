@@ -1,60 +1,35 @@
 #!/usr/bin/env bash
-# Nginx configuration script with custom 404 page
+# sets up a new 404 error page
 
 # Update repositories and install Nginx
-apt-get update
-apt-get -y install nginx
+sudo apt-get update
+sudo apt-get install -y nginx
 
-# Allow HTTP traffic on port 80 through the firewall
-sudo ufw allow 'Nginx HTTP'
+# Create a simple index.html file with "Hello World!" content
+echo "Hello World!" > index.html
+sudo mv index.html /var/www/html
 
-# Set up web directory and permissions; directory already exists
-# but keeping this line for idempotency and script reusability
-mkdir -p /var/www/html/
-sudo chmod -R 755 /var/www
-
-# Create a simple HTML file (optional for index.html)
-echo 'Hello World!' > /var/www/html/index.html
+# Create a custom 404.html page with the message "Ceci n'est pas une page"
+echo "Ceci n'est pas une page" > 404.html
+sudo mv 404.html /var/www/html
 
 # Define Nginx configuration using a heredoc for clarity
-CONFIGURE_SERVER=$(cat <<EOF
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    root /var/www/html;
-    index index.htm index.html index.nginx-debian.html;
-    server_name _;
+echo "server {
+   listen 80 default_server;
+   listen [::]:80 default_server;
+   
+   root /var/www/html;
+   index index.html;
+   
+   location /redirect_me {
+      return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
+   }
+   error_page 404 /404.html;
+   location = /404.html {
+      internal;
+   }
+}" > default
 
-    # Main location block handling normal requests
-    location / {
-        try_files \$uri \$uri/ =404;
-    }
-
-    # Custom location block for 301 redirection
-    location /redirect_me {
-        return 301 https://www.youtube.com/watch?v=QH2-TGUlwu4;
-    }
-
-    # Custom 404 error page
-    error_page 404 /404.html;
-    location = /404.html {
-        internal;
-        root /var/www/html;
-        echo "Ceci n'est pas une page";
-    }
-}
-EOF
-)
-
-# Apply the Nginx configuration using tee to write the configuration file
-echo "$CONFIGURE_SERVER" | sudo tee /etc/nginx/sites-available/default >/dev/null
-
-# Ensure the error page file exists and contains the message
-echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html >/dev/null
-
-# Start or restart Nginx
-if ! pgrep -x "nginx" >/dev/null; then
-    sudo service nginx start
-else
-    sudo service nginx restart
-fi
+# Apply the Nginx default configuration
+sudo mv -f default /etc/nginx/sites-available/default
+sudo service nginx restart
