@@ -5,7 +5,3 @@ apt-get update
 apt-get install -y apache2
 echo "Hello Holberton" > /var/www/html/index.html
 service apache2 start
-
-
-# echo "ServerName localhost" >> /etc/apache2.conf
-# service apache2 start
