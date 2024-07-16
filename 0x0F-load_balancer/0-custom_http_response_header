@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# duplicates web-01 to web-02
+# duplicate web-01 to web-02
+# these scripts are an upgrade from the web-server scripts...
 
 # uncomment to see the script run in action
 #set -x
@@ -9,25 +10,22 @@ echo -e "Updating and doing some minor checks...\n"
 function install() {
 	command -v "$1" &> /dev/null
 
+	#shellcheck disable=SC2181
 	if [ $? -ne 0 ]; then
-		echo -e "Installing: $1\n"
+		echo -e "	Installing: $1$\n"
 		sudo apt-get update -y -qq && \
-		sudo apt-get install -y "$1" -qq
-		if [ $? -ne 0 ]; then
-			echo "Error: Failed to install $1"
-			exit 1
-		fi
+			sudo apt-get install -y "$1" -qq
 		echo -e "\n"
 	else
-		echo -e "$1 is already installed.\n"
+		echo -e "	${1} is already installed.\n"
 	fi
 }
 
-install nginx # Install nginx
+install nginx #install nginx
 
 echo -e "\nSetting up some minor stuff.\n"
 
-# Allowing nginx on firewall
+# allowing nginx on firewall
 sudo ufw allow 'Nginx HTTP'
 
 # Give the user ownership to website files for easy editing
@@ -40,28 +38,29 @@ else
 	sudo chmod -R 755 /var/www
 fi
 
-# Create directories if not present
+# create directories if not present
 for dir in /var/www/{html,error}; do
 	if ! [ -d "$dir" ]; then
 		mkdir -p "$dir"
 	fi
 done
 
-# Creating new index
+# creating new index
 echo "Hello World!" > /var/www/html/index.html
 
-# Create new error page
+# create new error page
 echo "Ceci n'est pas une page" > /var/www/html/error_404.html
 
-# Backup default server config file
+# backup default server config file
 sudo cp /etc/nginx/sites-enabled/default nginx-sites-enabled_default.backup
 
-server_config="server {
+server_config=\
+"server {
 		listen 80 default_server;
 		listen [::]:80 default_server;
 		root /var/www/html;
-		index index.html index.htm index.nginx-debian.html;
-		server_name _;
+		index index.html index.htm index.nginx-debian.html
+		server_name_;
 		add_header X-Served-By \$hostname;
 		location / {
 			try_files \$uri \$uri/ =404;
@@ -75,7 +74,7 @@ server_config="server {
 		}
 }"
 
-# Write the server config
+#shellcheck disable=SC2154
 echo "$server_config" | sudo dd status=none of=/etc/nginx/sites-enabled/default
 
 if [ "$(pgrep -c nginx)" -le 0 ]; then
@@ -83,5 +82,3 @@ if [ "$(pgrep -c nginx)" -le 0 ]; then
 else
 	sudo service nginx restart
 fi
-
-echo -e "Nginx setup complete.\n"
