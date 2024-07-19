@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Script to install and setup haproxy for load balance
+
+# Update the apt package index and install haproxy
+sudo apt-get update
+sudo apt-get install -y haproxy
+
+# Enable HAProxy to start on boot
+sudo systemctl enable haproxy
+
+# Start the HAProxy service
+sudo systemctl start haproxy
+
+# Listen to web1 and web2 servers
+
+sudo echo "
+   listen load_balancer
+   bind *:80
+   mode http
+   balance roundrobin
+   option httpclose
+   option forwardfor
+   server 141771-web-01 34.202.158.50:80 check
+   server 141771-web-02 18.207.142.16:80 check
+" >> /etc/haproxy/haproxy.cfg
+
+service haproxy start
