@@ -4,6 +4,9 @@
 # Update the apt package index and install haproxy
 sudo apt-get update
 sudo apt-get install -y haproxy
+#sudo apt-get install --no-install-recommends software-properties-common
+#sudo add-apt-repository ppa:vbernat/haproxy-3.0
+#sudo apt-get install haproxy=3.0.\
 
 # Enable HAProxy to start on boot
 sudo systemctl enable haproxy
@@ -24,4 +27,4 @@ sudo echo "
    server 141771-web-02 18.207.142.16:80 check
 " >> /etc/haproxy/haproxy.cfg
 
-service haproxy start
+sudo service haproxy start
