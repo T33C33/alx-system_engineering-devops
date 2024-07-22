@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Configure your domain zone so that the subdomain www points to your load-balancer IP (lb-01).
+domain=$1
+subdomain=$2
+
+if [ -z "$subdomain" ]; then
+    subdomains=("www" "lb-01" "web-01" "web-02")
+else
+    subdomains=("$subdomain")
+fi
+
+for sub in "${subdomains[@]}"; do
+    result=$(dig $sub.$domain | awk '/ANSWER SECTION/ {getline; print}')
+    record_type=$(echo $result | awk '{print $4}')
+    destination=$(echo $result | awk '{print $5}')
+    echo "The subdomain $sub is a $record_type record and points to $destination"
+done
