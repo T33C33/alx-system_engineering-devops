@@ -47,5 +47,5 @@ frontend t-bugging-frontend-https
 
 backend t-bugging-backend
         balance roundrobin
-        server 151666-web-01 100.25.190.21:80 check
-        server 151666-web-02 54.160.77.90:80 check
+        server 141771-web-01 34.202.158.50:80 check
+        server 141771-web-02 18.207.142.16:80 check
