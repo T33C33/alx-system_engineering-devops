@@ -97,4 +97,4 @@ Let’s install the ufw firewall and setup a few rules on web-01.
 
 - GitHub repository: alx-system_engineering-devops
 - Directory: 0x13-firewall
-- File: 0-block_all_incoming_traffic_but
+- File: 0-block_all_incoming_traffic_but.
