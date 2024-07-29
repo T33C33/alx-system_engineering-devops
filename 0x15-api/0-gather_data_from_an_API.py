@@ -1,19 +1,14 @@
 #!/usr/bin/python3
 '''
-returns information about anemployee [ID]'s TODO list progress.
+gather employee data from API
 '''
+import re
 import requests
 import sys
 
-#!/usr/bin/python3
-"""
-This script retrieves employee information and their TODO list from an API.
-It then displays the progress of the employee's tasks.
-"""
+REST_API = "https://jsonplaceholder.typicode.com"
 
-
-
-def main():
+if __name__ == '__main__':
     if len(sys.argv) != 2 or not sys.argv[1].isdigit():
         print("Usage: python3 0-gather_data_from_an_API.py <employee_id>")
         sys.exit(1)
@@ -21,11 +16,11 @@ def main():
     employee_id = int(sys.argv[1])
 
     # Make a GET request to retrieve the employee's information
-    response = requests.get(f"https://jsonplaceholder.typicode.com/users/{employee_id}")
+    response = requests.get(f"{REST_API}/users/{employee_id}")
     employee = response.json()
 
     # Make a GET request to retrieve the employee's TODO list
-    response = requests.get(f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}")
+    response = requests.get(f"{REST_API}/todos?userId={employee_id}")
     todos = response.json()
 
     # Count the number of completed tasks
@@ -37,7 +32,3 @@ def main():
     print(f"Employee {employee['name']} is done with tasks({number_of_done_tasks}/{total_number_of_tasks}):")
     for todo in completed_tasks:
         print(f"\t{todo['title']}")
-
-
-if __name__ == "__main__":
-    main()
