@@ -1,6 +1,7 @@
+#!/usr/bin/python3
 import requests
 
-#!/usr/bin/python3
+
 """
 A recursive function that
 queries the Reddit API
