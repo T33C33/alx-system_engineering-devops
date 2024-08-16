@@ -16,11 +16,12 @@ def recurse(subreddit, hot_list=[], next_page="", total_count=0):
     """Returns a list of titles of all hot posts on a given subreddit."""
     url = "https://www.reddit.com/r/{}/hot/.json".format(subreddit)
     headers = {
-        "User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/bdov_)"
+        "User-Agent": "0x16-api_advanced:project:\
+v1.0.0 (by /u/firdaus_cartoon_jr)"
     }
     params = {
-        "after": next_page,
-        "count": total_count,
+        "after": after,
+        "count": count,
         "limit": 100
     }
     response = requests.get(url, headers=headers, params=params,
@@ -28,12 +29,12 @@ def recurse(subreddit, hot_list=[], next_page="", total_count=0):
     if response.status_code == 404:
         return None
 
-    data = response.json().get("data")
-    next_page = data.get("after")
-    total_count += data.get("dist")
-    for child in data.get("children"):
-        hot_list.append(child.get("data").get("title"))
+    results = response.json().get("data")
+    after = results.get("after")
+    count += results.get("dist")
+    for c in results.get("children"):
+        hot_list.append(c.get("data").get("title"))
 
-    if next_page is not None:
-        return recurse(subreddit, hot_list, next_page, total_count)
+    if after is not None:
+        return recurse(subreddit, hot_list, after, count)
     return hot_list
